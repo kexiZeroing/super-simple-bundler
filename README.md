@@ -1,6 +1,6 @@
 # Super Simple Bundler
 
-This simple bundler that handles CommonJS modules will:
+This simple bundler will:
 1. Read the entry file (src/index.js)
 2. Parse it using Babel to create an AST
 3. Find all dependencies

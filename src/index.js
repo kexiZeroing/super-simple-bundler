@@ -1,4 +1,4 @@
-const math = require('./math.js');
-const logger = require('./logger');
+import { add } from './math.js';
+import { log } from './logger';
 
-logger.log(math.add(2, 3));
+log(add(2, 3));

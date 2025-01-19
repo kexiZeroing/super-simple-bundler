@@ -1,3 +1,3 @@
-exports.log = function(message) {
+export const log = function(message) {
   console.log(`[Logger]: ${message}`);
 };

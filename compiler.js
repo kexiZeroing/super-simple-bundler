@@ -22,7 +22,7 @@ module.exports = class Compiler {
         this.modules.push(this.buildModule(dependency));
       });
     });
-    
+
     this.emitFiles();
   }
 
@@ -68,43 +68,28 @@ module.exports = class Compiler {
   }
 
   emitFiles() {
-    try {
-      const outputPath = path.join(this.output.path, this.output.filename);
-      
-      // Ensure output directory exists
-      fs.mkdirSync(this.output.path, { recursive: true });
+    const outputPath = path.join(this.output.path, this.output.filename);
+    let modules = "";
+    this.modules.map((_module) => {
+      modules += `'${_module.filename}': function (require, module, exports) { ${_module.transformCode} },`;
+    });
 
-      let modules = "";
-      this.modules.forEach((_module) => {
-        if (_module && _module.transformCode) {
-          modules += `'${_module.filename}': function (require, module, exports) { ${_module.transformCode} },`;
+    const bundle = `
+      (function(modules) {
+        function require(fileName) {
+          const fn = modules[fileName];
+
+          const module = { exports : {} };
+
+          fn(require, module, module.exports);
+
+          return module.exports;
         }
-      });
 
-      const bundle = `
-        (function(modules) {
-          function require(fileName) {
-            const fn = modules[fileName];
-            if (typeof fn !== 'function') {
-              throw new Error('Module not found: ' + fileName);
-            }
+        require('${this.entry}');
+      })({${modules}})
+    `;
 
-            const module = { exports: {} };
-
-            fn(require, module, module.exports);
-
-            return module.exports;
-          }
-
-          require('${this.entry}');
-        })({${modules}})
-      `;
-
-      fs.writeFileSync(outputPath, bundle, "utf-8");
-      console.log(`Bundle written to ${outputPath}`);
-    } catch (error) {
-      console.error('Error emitting files:', error.message);
-      throw error;
-    }
+    fs.writeFileSync(outputPath, bundle, "utf-8");
   }
 };

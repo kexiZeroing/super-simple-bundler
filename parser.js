@@ -10,21 +10,15 @@ module.exports = {
     // 2. `sourceType` indicates the mode the code should be parsed in
     // Files with ES6 imports and exports are considered "module" and are otherwise "script".
     return parser.parse(content, {
-      // sourceType: "module",
+      sourceType: "module",
     });
   },
   getDependencies: (ast) => {
     const dependencies = [];
     traverse(ast, {
-      // ImportDeclaration: ({ node }) => {
-      //   dependencies.push(node.source.value);
-      // },
-      CallExpression: ({ node }) => {
-        if (node.callee.name === 'require' && 
-            node.arguments[0].type === 'StringLiteral') {
-          dependencies.push(node.arguments[0].value);
-        }
-      }
+      ImportDeclaration: ({ node }) => {
+        dependencies.push(node.source.value);
+      },
     });
     return dependencies;
   },
